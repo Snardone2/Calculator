@@ -1,56 +1,106 @@
 // Constants
-const display = document.querySelector('.display');
-const keys = document.querySelector('.keys');
+const decimalBtn = document.getElementById('calc-decimal');
+const clearBtn = document.getElementById('calc-clear');
+const backspaceBtn = document.getElementById('calc-backspace');
 
-// Variables
-let displayValue = '',
-    storedValue = '',
-    operator = 0;
+const displayValElement = document.getElementById('calc-display-val');
 
-// Operator Functions
-function add(n1, n2) {
-    return n1 + n2;
+const calcNumBtns = document.getElementsByClassName('calc-btn-num');
+const calcOperatorBtns = document.getElementsByClassName('calc-btn-operator');
+
+// Variables 
+let displayVal = '0';
+let pendingVal;
+let evalStringArray = [];
+
+// functions
+let updateDisplayVal = (clickObj) => {
+    let btnText = clickObj.target.innerText;
+
+    if (displayVal === '0') 
+        displayVal = '';
+    
+    displayVal += btnText;
+    displayValElement.innerText = displayVal;
 }
 
-function subtract(n1, n2) {
-    return n1 - n2;
-}
+let preformOperation = (clickObj) => {
+    var operator = clickObj.target.innerText;
 
-function multiply(n1, n2) {
-    return n1 * n2;
-}
+    switch (operator) {
+        case '+':
+            pendingVal = displayVal;
+            displayVal = '0';
+            displayValElement.innerText = displayVal;
+            evalStringArray.push(pendingVal);
+            evalStringArray.push('+');
+            break;
 
-function divide(){
-    if (n1 === 0 || n2 === 0){
-        return "That's impossible, but nice try.";
-    } else {
-        return n1 / n2;
+        case '-': 
+            pendingVal = displayVal;
+            displayVal = '0';
+            displayValElement.innerText = displayVal;
+            evalStringArray.push(pendingVal);
+            evalStringArray.push('-');
+            break;
+
+        case 'x':
+            pendingVal = displayVal;
+            displayVal = '0';
+            displayValElement.innerText = displayVal;
+            evalStringArray.push(pendingVal);
+            evalStringArray.push('*');
+        break;
+
+        case '÷':
+            pendingVal = displayVal;
+            displayVal = '0';
+            displayValElement.innerText = displayVal;
+            evalStringArray.push(pendingVal);
+            evalStringArray.push('/');
+        break;    
+
+        case '=':
+            evalStringArray.push(displayVal);
+            var evaluation = eval(evalStringArray.join(' '));
+            displayVal = evaluation
+            displayValElement.innerText = displayVal;
+            evalStringArray = [];
+        break;
+    
+        default:
+            break;
     }
 }
 
-function calculate(displayValue, operator, storedValue) {
-    let n1 = parseFloat(storedValue);
-    let n2 = parseFloat(displayValue);
-    if (operator === '+'){
-        return add;
-    } else if (operator === '-'){
-        return subtract;
-    } else if (operator === '*'){
-        return multiply;
-    } else if (operator === '/'){
-        return divide;
-    }
+for (let i = 0; i < calcNumBtns.length; i++) {
+    calcNumBtns[i].addEventListener('click', updateDisplayVal);
 }
 
-function setDisplay(text){
-    display.textContent = text;
+for (let i = 0; i < calcOperatorBtns.length; i++) {
+    calcOperatorBtns[i].addEventListener('click', preformOperation, false);
 }
 
-setDisplay(0);
 
-//event handler
-keys.addEventListener('click', (e) => {
-    let number = e.target.innerText;
-    displayValue += number;
-    setDisplay(displayValue);
-});
+
+clearBtn.onclick = () => {
+    displayVal = '0';
+    pendingVal = undefined;
+    evaStringArray = [];
+    displayValElement.innerText = displayVal;
+}
+
+backspaceBtn.onclick = () => {
+    let lengthOfDisplayVal = displayVal.length;
+    displayVal = displayVal.slice(0, lengthOfDisplayVal - 1);
+
+    if (displayVal === '')
+        displayVal = '0';
+    displayValElement.innerText = displayVal;
+}
+
+decimalBtn.onclick = () => {
+    if (!displayVal.includes('.'))
+        displayVal += '.';
+    displayValElement.innerText = displayVal;
+}
